@@ -6,6 +6,7 @@ A Roblox script that allows players to communicate using character movements bas
 
 * Full Morse code alphabet support (A-Z)
 * Automatic text-to-Morse conversion
+* Includes a translator for other people uses / not uses the script
 
 ## Language Used
 
