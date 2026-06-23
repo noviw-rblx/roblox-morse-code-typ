@@ -100,6 +100,39 @@ toggle_btn.ZIndex = 10
 toggle_btn.Parent = screen
 corner(toggle_btn, 4); stroke(toggle_btn)
 
+local function show_notif(msg)
+	local nf = Instance.new("Frame")
+	nf.Size = UDim2.new(0, 220, 0, 36)
+	nf.Position = UDim2.new(0.5, -110, 1, -60)
+	nf.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+	nf.BackgroundTransparency = 1
+	nf.BorderSizePixel = 0
+	nf.ZIndex = 20
+	nf.Parent = screen
+	local co = Instance.new("UICorner", nf); co.CornerRadius = UDim.new(0, 6)
+	local st = Instance.new("UIStroke", nf); st.Color = Color3.fromRGB(60,60,60); st.Thickness = 1
+	local nl = Instance.new("TextLabel", nf)
+	nl.Size = UDim2.new(1, -12, 1, 0)
+	nl.Position = UDim2.new(0, 6, 0, 0)
+	nl.BackgroundTransparency = 1
+	nl.Text = msg
+	nl.TextColor3 = Color3.fromRGB(200, 200, 200)
+	nl.TextTransparency = 1
+	nl.TextSize = 12
+	nl.Font = Enum.Font.Gotham
+	nl.TextXAlignment = Enum.TextXAlignment.Left
+	nl.ZIndex = 21
+	local inf = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	ts:Create(nf, inf, {BackgroundTransparency = 0}):Play()
+	ts:Create(nl, inf, {TextTransparency = 0}):Play()
+	task.delay(2, function()
+		local out = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		ts:Create(nf, out, {BackgroundTransparency = 1}):Play()
+		ts:Create(nl, out, {TextTransparency = 1}):Play()
+		task.delay(0.3, function() nf:Destroy() end)
+	end)
+end
+
 local fw, fh = 400, 256
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, fw, 0, fh)
@@ -127,7 +160,7 @@ t_fix.BorderSizePixel = 0
 t_fix.Parent = title_bar
 
 local title_lbl = Instance.new("TextLabel")
-title_lbl.Size = UDim2.new(1, -80, 1, 0)
+title_lbl.Size = UDim2.new(1, -114, 1, 0)
 title_lbl.Position = UDim2.new(0, 10, 0, 0)
 title_lbl.BackgroundTransparency = 1
 title_lbl.Text = "roblox morse code by novi.w"
@@ -136,6 +169,18 @@ title_lbl.TextSize = 11
 title_lbl.Font = Enum.Font.Gotham
 title_lbl.TextXAlignment = Enum.TextXAlignment.Left
 title_lbl.Parent = title_bar
+
+local dc_btn = Instance.new("TextButton")
+dc_btn.Size = UDim2.new(0, 28, 0, 20)
+dc_btn.Position = UDim2.new(1, -96, 0.5, -10)
+dc_btn.BackgroundColor3 = Color3.fromRGB(35, 65, 120)
+dc_btn.Text = "dc"
+dc_btn.TextColor3 = Color3.fromRGB(120, 160, 230)
+dc_btn.TextSize = 10
+dc_btn.Font = Enum.Font.GothamBold
+dc_btn.BorderSizePixel = 0
+dc_btn.Parent = title_bar
+corner(dc_btn, 3)
 
 local min_btn = Instance.new("TextButton")
 min_btn.Size = UDim2.new(0, 28, 0, 20)
@@ -392,11 +437,19 @@ min_btn.MouseButton1Click:Connect(function()
 end)
 
 close_btn.MouseButton1Click:Connect(function()
-	tw(frame, fast, { BackgroundTransparency = 1 })
-	task.delay(0.2, function()
-		frame.Visible = false
-		frame.BackgroundTransparency = 0
-		toggle_btn.Visible = true
+	playing = false
+	local fade = TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	for _, obj in ipairs(frame:GetDescendants()) do
+		if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+			ts:Create(obj, fade, {TextTransparency = 1}):Play()
+		end
+		if obj:IsA("Frame") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+			ts:Create(obj, fade, {BackgroundTransparency = 1}):Play()
+		end
+	end
+	ts:Create(frame, fade, {BackgroundTransparency = 1}):Play()
+	task.delay(0.25, function()
+		screen:Destroy()
 	end)
 end)
 
@@ -419,6 +472,13 @@ add_hover(pick_btn,   c.btn,      Color3.fromRGB(65,65,65))
 add_hover(min_btn,    Color3.fromRGB(50,50,50), Color3.fromRGB(70,70,70))
 add_hover(close_btn,  Color3.fromRGB(68,42,42), Color3.fromRGB(95,55,55))
 add_hover(toggle_btn, c.toggle,   Color3.fromRGB(60,60,60))
+add_hover(dc_btn,     Color3.fromRGB(35,65,120), Color3.fromRGB(50,90,160))
+
+dc_btn.MouseButton1Click:Connect(function()
+	setclipboard("https://discord.gg/4Dws7eQG6E")
+	snd_tick:Play()
+	show_notif("discord link copied!")
+end)
 
 local function cwait(t)
 	local s = tick()
